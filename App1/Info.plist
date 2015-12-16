@@ -15,10 +15,10 @@
 			<key>CFBundleTypeIconFiles</key>
 			<array/>
 			<key>CFBundleTypeName</key>
-			<string>JPEG</string>
+			<string>Standard MIDI File</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>public.jpeg</string>
+				<string>public.midi-audio</string>
 			</array>
 		</dict>
 	</array>
@@ -29,10 +29,11 @@
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>MinimumOSVersion</key>
-	<string>7.0</string>
+	<string>8.0</string>
 	<key>CFBundleIconFiles</key>
 	<array>
 		<string>Icon-76@2x.png</string>
+		<string>Default@2x.png</string>
 		<string>Default-568h@2x.png</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
@@ -40,12 +41,16 @@
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>UIMainStoryboardFile</key>
-	<string>MainStoryboard_iPad</string>
+	<string>MainStoryboard_iPhone</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>UIPrerenderedIcon</key>
 	<true/>
+	<key>UIMainStoryboardFile~ipad</key>
+	<string>MainStoryboard_iPhone</string>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
 </dict>
 </plist>

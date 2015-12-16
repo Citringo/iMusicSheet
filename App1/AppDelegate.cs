@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Foundation;
 using UIKit;
+using static App1.Utility;
+using static App1.IOHelper;
 namespace App1
 {
 	// The UIApplicationDelegate for the application. This class is responsible for launching the
@@ -41,9 +44,37 @@ namespace App1
 
 		public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
 		{
-			
-			return base.FinishedLaunching(application, launchOptions);
+			if (!Directory.Exists(GetFullPath("Music")))
+				CreateDirectory("Music");
+				
+			if (launchOptions != null)
+			{
+				NSObject urlObject;
+				if (launchOptions.TryGetValue(UIApplication.LaunchOptionsUrlKey, out urlObject))
+				{
+					var url = urlObject as NSUrl;
+					try
+					{
+						IOHelper.StoreSmf(url.LastPathComponent);
+					}
+					catch (ArgumentException)
+					{
+						MessageQueue.Enqueue(MSMessageType.ShowCouldntImportDialog);
+						return true;
+					}
+					// Examine the url here
+					MessageQueue.Enqueue(MSMessageType.ShowImportedDialog);
+				}
+
+
+
+			}
+
+			return true;
 		}
+
+		
+
 
 	}
 }
