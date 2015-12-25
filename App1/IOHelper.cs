@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using Foundation;
 
 namespace App1
 {
@@ -34,6 +35,13 @@ namespace App1
 			return Path.Combine(documents, path);
 		}
 
+		public static string GetFullBundlePath(string path)
+		{
+			var documents =
+				Path.Combine(NSBundle.MainBundle.BundlePath);
+			return Path.Combine(documents, path);
+		}
+
 		public static bool Exists(string path)
 		{
 			return File.Exists(GetFullPath(path));
@@ -56,10 +64,10 @@ namespace App1
 				else
 				{
 					fileName = $"{Path.GetFileNameWithoutExtension(smfname)}({i}).{Path.GetExtension(smfname)}";
-                }
+				}
 
 				// 重複しなくなったら抜ける
-				if (!Exists(fileName))
+				if (!Exists("Music/" + fileName))
 					break;
 			}
 
@@ -70,7 +78,8 @@ namespace App1
 
 
 			CopyFile($"Inbox/{smfname}", $"Music/{fileName}");
-			File.Delete(GetFullPath($"Inbox/{smfname}"));
+			foreach (string s in Directory.GetFiles(GetFullPath("Inbox")))
+				File.Delete(s);
         }
 
 

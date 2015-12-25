@@ -45,35 +45,59 @@ namespace App1
 		public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
 		{
 			if (!Directory.Exists(GetFullPath("Music")))
+			{
 				CreateDirectory("Music");
-				
-			if (launchOptions != null)
+				Logger.Info("Created music folder!");
+			}
+
+#if DEBUG
+			if (!File.Exists(GetFullPath("Music/test.mid")))
+			{
+				File.Copy(GetFullBundlePath("test.mid"), GetFullPath("Music/test.mid"));
+				Logger.Info("To debug, I add test.mid to playlist!");
+			}
+#endif
+
+			/*if (launchOptions != null)
 			{
 				NSObject urlObject;
 				if (launchOptions.TryGetValue(UIApplication.LaunchOptionsUrlKey, out urlObject))
 				{
 					var url = urlObject as NSUrl;
-					try
-					{
-						IOHelper.StoreSmf(url.LastPathComponent);
-					}
-					catch (ArgumentException)
-					{
-						MessageQueue.Enqueue(MSMessageType.ShowCouldntImportDialog);
-						return true;
-					}
-					// Examine the url here
-					MessageQueue.Enqueue(MSMessageType.ShowImportedDialog);
+					LocateSmf(url);
 				}
-
-
-
 			}
+			else
+			{
+				Logger.Info("App began running without launchOption. This means no file-copy.");
+			}*/
 
 			return true;
 		}
 
-		
+		private void LocateSmf(NSUrl url)
+		{
+			Logger.Info("Will locate smf.");
+			try
+			{
+				StoreSmf(url.LastPathComponent);
+				MessageQueue.Enqueue(MSMessageType.ShowImportedDialog);
+				MessageQueue.Enqueue(MSMessageType.UpdateFilelist);
+				Logger.Info("Successfully located smf!");
+			}
+			catch (ArgumentException)
+			{
+				MessageQueue.Enqueue(MSMessageType.ShowCouldntImportDialog);
+				Logger.Warning("Couldn't locate smf...");
+			}
+		}
+
+		public override bool HandleOpenURL(UIApplication application, NSUrl url)
+		{
+			LocateSmf(url);
+			
+			return true;
+		}
 
 
 	}
