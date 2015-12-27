@@ -121,7 +121,9 @@
     <Compile Include="IOHelper.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
+    <Compile Include="MSDatas.cs" />
     <Compile Include="MSPlayer.cs" />
+    <Compile Include="MSSynth.cs" />
     <Compile Include="Utility.cs" />
     <None Include="GettingStarted.Xamarin" />
     <Compile Include="Properties\AssemblyInfo.cs" />
