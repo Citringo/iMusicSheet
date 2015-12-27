@@ -38,6 +38,7 @@
     <OptimizePNGs>True</OptimizePNGs>
     <MtouchFloat32>False</MtouchFloat32>
     <MtouchI18n />
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -66,7 +67,7 @@
     <CodesignResourceRules />
     <CodesignExtraArgs />
     <MtouchSdkVersion>9.2</MtouchSdkVersion>
-    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchLink>None</MtouchLink>
     <MtouchProfiling>False</MtouchProfiling>
     <MtouchFastDev>False</MtouchFastDev>
     <MtouchUseLlvm>False</MtouchUseLlvm>
@@ -78,6 +79,7 @@
     <MtouchI18n />
     <OptimizePNGs>True</OptimizePNGs>
     <MtouchFloat32>False</MtouchFloat32>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
@@ -124,6 +126,121 @@
     <None Include="GettingStarted.Xamarin" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <InterfaceDefinition Include="Resources\LaunchScreen.xib" />
+    <BundleResource Include="Resources\mssf\124.mssf" />
+    <BundleResource Include="Resources\mssf\125.mssf" />
+    <BundleResource Include="Resources\mssf\126.mssf" />
+    <BundleResource Include="Resources\mssf\127.mssf" />
+    <BundleResource Include="Resources\mssf\0.mssf" />
+    <BundleResource Include="Resources\mssf\1.mssf" />
+    <BundleResource Include="Resources\mssf\2.mssf" />
+    <BundleResource Include="Resources\mssf\3.mssf" />
+    <BundleResource Include="Resources\mssf\4.mssf" />
+    <BundleResource Include="Resources\mssf\5.mssf" />
+    <BundleResource Include="Resources\mssf\6.mssf" />
+    <BundleResource Include="Resources\mssf\7.mssf" />
+    <BundleResource Include="Resources\mssf\8.mssf" />
+    <BundleResource Include="Resources\mssf\9.mssf" />
+    <BundleResource Include="Resources\mssf\10.mssf" />
+    <BundleResource Include="Resources\mssf\11.mssf" />
+    <BundleResource Include="Resources\mssf\12.mssf" />
+    <BundleResource Include="Resources\mssf\13.mssf" />
+    <BundleResource Include="Resources\mssf\14.mssf" />
+    <BundleResource Include="Resources\mssf\15.mssf" />
+    <BundleResource Include="Resources\mssf\16.mssf" />
+    <BundleResource Include="Resources\mssf\17.mssf" />
+    <BundleResource Include="Resources\mssf\18.mssf" />
+    <BundleResource Include="Resources\mssf\19.mssf" />
+    <BundleResource Include="Resources\mssf\20.mssf" />
+    <BundleResource Include="Resources\mssf\21.mssf" />
+    <BundleResource Include="Resources\mssf\22.mssf" />
+    <BundleResource Include="Resources\mssf\23.mssf" />
+    <BundleResource Include="Resources\mssf\24.mssf" />
+    <BundleResource Include="Resources\mssf\25.mssf" />
+    <BundleResource Include="Resources\mssf\26.mssf" />
+    <BundleResource Include="Resources\mssf\27.mssf" />
+    <BundleResource Include="Resources\mssf\28.mssf" />
+    <BundleResource Include="Resources\mssf\29.mssf" />
+    <BundleResource Include="Resources\mssf\30.mssf" />
+    <BundleResource Include="Resources\mssf\31.mssf" />
+    <BundleResource Include="Resources\mssf\32.mssf" />
+    <BundleResource Include="Resources\mssf\33.mssf" />
+    <BundleResource Include="Resources\mssf\34.mssf" />
+    <BundleResource Include="Resources\mssf\35.mssf" />
+    <BundleResource Include="Resources\mssf\36.mssf" />
+    <BundleResource Include="Resources\mssf\37.mssf" />
+    <BundleResource Include="Resources\mssf\38.mssf" />
+    <BundleResource Include="Resources\mssf\39.mssf" />
+    <BundleResource Include="Resources\mssf\40.mssf" />
+    <BundleResource Include="Resources\mssf\41.mssf" />
+    <BundleResource Include="Resources\mssf\42.mssf" />
+    <BundleResource Include="Resources\mssf\43.mssf" />
+    <BundleResource Include="Resources\mssf\44.mssf" />
+    <BundleResource Include="Resources\mssf\45.mssf" />
+    <BundleResource Include="Resources\mssf\46.mssf" />
+    <BundleResource Include="Resources\mssf\47.mssf" />
+    <BundleResource Include="Resources\mssf\48.mssf" />
+    <BundleResource Include="Resources\mssf\49.mssf" />
+    <BundleResource Include="Resources\mssf\50.mssf" />
+    <BundleResource Include="Resources\mssf\51.mssf" />
+    <BundleResource Include="Resources\mssf\52.mssf" />
+    <BundleResource Include="Resources\mssf\53.mssf" />
+    <BundleResource Include="Resources\mssf\54.mssf" />
+    <BundleResource Include="Resources\mssf\55.mssf" />
+    <BundleResource Include="Resources\mssf\56.mssf" />
+    <BundleResource Include="Resources\mssf\57.mssf" />
+    <BundleResource Include="Resources\mssf\58.mssf" />
+    <BundleResource Include="Resources\mssf\59.mssf" />
+    <BundleResource Include="Resources\mssf\60.mssf" />
+    <BundleResource Include="Resources\mssf\61.mssf" />
+    <BundleResource Include="Resources\mssf\62.mssf" />
+    <BundleResource Include="Resources\mssf\63.mssf" />
+    <BundleResource Include="Resources\mssf\64.mssf" />
+    <BundleResource Include="Resources\mssf\65.mssf" />
+    <BundleResource Include="Resources\mssf\66.mssf" />
+    <BundleResource Include="Resources\mssf\67.mssf" />
+    <BundleResource Include="Resources\mssf\68.mssf" />
+    <BundleResource Include="Resources\mssf\69.mssf" />
+    <BundleResource Include="Resources\mssf\70.mssf" />
+    <BundleResource Include="Resources\mssf\71.mssf" />
+    <BundleResource Include="Resources\mssf\72.mssf" />
+    <BundleResource Include="Resources\mssf\73.mssf" />
+    <BundleResource Include="Resources\mssf\74.mssf" />
+    <BundleResource Include="Resources\mssf\75.mssf" />
+    <BundleResource Include="Resources\mssf\76.mssf" />
+    <BundleResource Include="Resources\mssf\77.mssf" />
+    <BundleResource Include="Resources\mssf\78.mssf" />
+    <BundleResource Include="Resources\mssf\79.mssf" />
+    <BundleResource Include="Resources\mssf\80.mssf" />
+    <BundleResource Include="Resources\mssf\81.mssf" />
+    <BundleResource Include="Resources\mssf\82.mssf" />
+    <BundleResource Include="Resources\mssf\83.mssf" />
+    <BundleResource Include="Resources\mssf\84.mssf" />
+    <BundleResource Include="Resources\mssf\85.mssf" />
+    <BundleResource Include="Resources\mssf\86.mssf" />
+    <BundleResource Include="Resources\mssf\87.mssf" />
+    <BundleResource Include="Resources\mssf\88.mssf" />
+    <BundleResource Include="Resources\mssf\89.mssf" />
+    <BundleResource Include="Resources\mssf\90.mssf" />
+    <BundleResource Include="Resources\mssf\98.mssf" />
+    <BundleResource Include="Resources\mssf\99.mssf" />
+    <BundleResource Include="Resources\mssf\100.mssf" />
+    <BundleResource Include="Resources\mssf\105.mssf" />
+    <BundleResource Include="Resources\mssf\106.mssf" />
+    <BundleResource Include="Resources\mssf\107.mssf" />
+    <BundleResource Include="Resources\mssf\108.mssf" />
+    <BundleResource Include="Resources\mssf\110.mssf" />
+    <BundleResource Include="Resources\mssf\112.mssf" />
+    <BundleResource Include="Resources\mssf\113.mssf" />
+    <BundleResource Include="Resources\mssf\114.mssf" />
+    <BundleResource Include="Resources\mssf\115.mssf" />
+    <BundleResource Include="Resources\mssf\116.mssf" />
+    <BundleResource Include="Resources\mssf\117.mssf" />
+    <BundleResource Include="Resources\mssf\118.mssf" />
+    <BundleResource Include="Resources\mssf\119.mssf" />
+    <BundleResource Include="Resources\mssf\120.mssf" />
+    <BundleResource Include="Resources\mssf\121.mssf" />
+    <BundleResource Include="Resources\mssf\122.mssf" />
+    <BundleResource Include="Resources\mssf\123.mssf" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="RootViewController.designer.cs">
@@ -146,7 +263,36 @@
     <Content Include="Info.plist" />
     <BundleResource Include="Resources\Default%402x.png" />
     <BundleResource Include="Resources\msmidplayer_ico.png" />
-    <BundleResource Include="Resources\test.mid" />
+    <BundleResource Include="Resources\Drums\31.wav" />
+    <BundleResource Include="Resources\Drums\35.wav" />
+    <BundleResource Include="Resources\Drums\36.wav" />
+    <BundleResource Include="Resources\Drums\37.wav" />
+    <BundleResource Include="Resources\Drums\38.wav" />
+    <BundleResource Include="Resources\Drums\39.wav" />
+    <BundleResource Include="Resources\Drums\40.wav" />
+    <BundleResource Include="Resources\Drums\41.wav" />
+    <BundleResource Include="Resources\Drums\42.wav" />
+    <BundleResource Include="Resources\Drums\43.wav" />
+    <BundleResource Include="Resources\Drums\44.wav" />
+    <BundleResource Include="Resources\Drums\45.wav" />
+    <BundleResource Include="Resources\Drums\46.wav" />
+    <BundleResource Include="Resources\Drums\47.wav" />
+    <BundleResource Include="Resources\Drums\48.wav" />
+    <BundleResource Include="Resources\Drums\49.wav" />
+    <BundleResource Include="Resources\Drums\50.wav" />
+    <BundleResource Include="Resources\Drums\51.wav" />
+    <BundleResource Include="Resources\Drums\52.wav" />
+    <BundleResource Include="Resources\Drums\54.wav" />
+    <BundleResource Include="Resources\Drums\55.wav" />
+    <BundleResource Include="Resources\Drums\57.wav" />
+    <BundleResource Include="Resources\Drums\59.wav" />
+    <BundleResource Include="Resources\Drums\63.wav" />
+    <BundleResource Include="Resources\Drums\64.wav" />
+    <BundleResource Include="Resources\Drums\78.wav" />
+    <BundleResource Include="Resources\Drums\79.wav" />
+    <BundleResource Include="Resources\Drums\80.wav" />
+    <BundleResource Include="Resources\Drums\81.wav" />
+    <BundleResource Include="Resources\Hello, music sheet.mid" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

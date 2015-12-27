@@ -48,13 +48,15 @@ namespace App1
 			{
 				CreateDirectory("Music");
 				Logger.Info("Created music folder!");
+				File.Copy(GetFullBundlePath("Hello, music sheet.mid"), GetFullPath("Music/Hello, music sheet.mid"));
+				Logger.Info("Installed a midi file named 'Hello, music sheet'.");
 			}
 
 #if DEBUG
-			if (!File.Exists(GetFullPath("Music/test.mid")))
+			if (!File.Exists(GetFullPath("Music/Hello, music sheet.mid")))
 			{
-				File.Copy(GetFullBundlePath("test.mid"), GetFullPath("Music/test.mid"));
-				Logger.Info("To debug, I add test.mid to playlist!");
+				File.Copy(GetFullBundlePath("Hello, music sheet.mid"), GetFullPath("Music/Hello, music sheet.mid"));
+				Logger.Info("To debug, I add 'Hello, music sheet.mid' to playlist!");
 			}
 #endif
 

@@ -18,13 +18,13 @@ namespace App1
 		}
 
 		DataSource dataSource;
-		MSPlayer player = new MSPlayer();
+		MSPlayer player;
 
 		public MSPlayer Player => player;
 
 		public RootViewController(IntPtr handle) : base(handle)
 		{
-
+			
 		}
 
 
@@ -38,16 +38,16 @@ namespace App1
 
 		#region View lifecycle
 
-		public override async void ViewDidLoad()
+		public override void ViewDidLoad()
 		{
 			base.ViewDidLoad();
 			Logger.Info("ViewDidLoad");
-			
+			player = new MSPlayer();
 			var files = Directory.GetFiles(IOHelper.GetFullPath("Music"));
 			for (int i = 0; i < files.Length; i++)
 				files[i] = Path.GetFileName(files[i]);
 			FileList.Source = dataSource = new DataSource(files, this);
-			await Task.Factory.StartNew(() =>
+			Task.Factory.StartNew(() =>
 			{
 				while (true)
 				{
@@ -76,7 +76,7 @@ namespace App1
 						}
 					Task.Delay(100);
 					
-				}
+                }
 			});
 
 			
