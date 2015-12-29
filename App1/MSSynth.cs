@@ -18,7 +18,7 @@ namespace App1
 		OutputAudioQueue queue;
 		private double sampleRate;
 		private const int numBuffers = 3;
-		private const int numPacketsToRead = 507;
+		private const int numPacketsToRead = 1088;
 		private NSError error;
 
 		public Channel[] ch = new Channel[16];
@@ -44,17 +44,19 @@ namespace App1
 				BytesPerPacket = 4,
 				FramesPerPacket = 1
 			};
-			Logger.Info("set format");
+
+			Logger.Info("set format. samplerate = " + sampleRate);
 			queue = new OutputAudioQueue(format);
 			Logger.Info("create queue");
-			var bufferByteSize = numPacketsToRead * format.BytesPerPacket;
+
+			var bufferByteSize = (sampleRate > 16000) ? 2176 : 512; // 40.5 Hz : 31.25 Hz
 
 
 			var buffers = new AudioQueueBuffer*[numBuffers];
 			Logger.Info("create buffers");
 			for (int i = 0; i < numBuffers; i++)
 			{
-				Logger.Info("Processing buffer {0}...", i);
+				Logger.Info("Processing buffer {0}...", i + 1);
 				queue.AllocateBuffer(bufferByteSize, out buffers[i]);
 				Logger.Info("Allocated");
 				GenerateTone(buffers[i]);
@@ -65,6 +67,7 @@ namespace App1
 			queue.BufferCompleted += (sender, e) =>
 			{
 				GenerateTone(e.UnsafeBuffer);
+				//e.UnsafeBuffer->AudioDataByteSize = (uint)(numPacketsToRead * format.BytesPerPacket);
 				queue.EnqueueBuffer(e.UnsafeBuffer, null);
 			};
 			Logger.Info("Set EventHandler");
@@ -183,9 +186,12 @@ namespace App1
 			}
 		}
 
+		double tick = 0;
+
 		void GenerateTone(AudioQueueBuffer* buffer)
 		{
-			uint sampleCount = numPacketsToRead;
+			//Info("BufferCapacity = {0}", buffer->AudioDataBytesCapacity);
+			uint sampleCount = buffer->AudioDataBytesCapacity / 4;
 			//double bufferLength = sampleCount;
 			//double wavelength = sampleRate / outputFrequency;
 			//double repetitions = Math.Floor(bufferLength / wavelength);
@@ -195,16 +201,19 @@ namespace App1
 			double amp = 0.9;
 			double max16bit = short.MaxValue;
 			short* p = (short*)buffer->AudioData;
+			double yl, yr, byl = 0, byr = 0;
 			for (int i = 0; i < sampleCount; i++)
 			{
-				double x = i * sd * 440;
-				double yl, yr;
-				yl = Math.Sin(x * 2.0 * Math.PI);
-				yr = ((x % 1.0 < 0.5) ? 0.7 : -0.7);
+				double x = tick * sd * 440;
+				yl = (((x % 1.0 < 0.5) ? 0.7 : -0.7) + byl) / 2;
+				yr = (((x % 1.0 < 0.5) ? 0.7 : -0.7) + byr) / 2;
 				p[i * 2 + 0] = (short)(yl * max16bit * amp);
 				p[i * 2 + 1] = (short)(yr * max16bit * amp);
+				byl = yl;
+				byr = yr;
+				tick++;
 			}
-			buffer->AudioDataByteSize = sampleCount * 2;
+			buffer->AudioDataByteSize = sampleCount * 4;
 		}
 
 		public static float GetRelativeFreq(int oct)
