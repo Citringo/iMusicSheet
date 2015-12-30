@@ -16,7 +16,7 @@ namespace App1
 	{
 		[Outlet]
 		[GeneratedCode ("iOS Designer", "1.0")]
-		UITableView FileList { get; set; }
+		public UITableView FileList { get; set; }
 
 		void ReleaseDesignerOutlets ()
 		{

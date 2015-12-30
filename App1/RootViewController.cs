@@ -17,14 +17,14 @@ namespace App1
 			get { return UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Phone; }
 		}
 
-		DataSource dataSource;
+		public DataSource dataSource;
 		MSPlayer player;
 
 		public MSPlayer Player => player;
 
 		public RootViewController(IntPtr handle) : base(handle)
 		{
-			
+
 		}
 
 
@@ -47,7 +47,7 @@ namespace App1
 			for (int i = 0; i < files.Length; i++)
 				files[i] = Path.GetFileName(files[i]);
 			FileList.Source = dataSource = new DataSource(files, this);
-			Task.Factory.StartNew(() =>
+			/*Task.Factory.StartNew(() =>
 			{
 				while (true)
 				{
@@ -74,13 +74,30 @@ namespace App1
 								});
 								break;
 						}
-					Task.Delay(100);
+					Task.Delay(TimeSpan.FromSeconds(3));
 					
                 }
 			});
-
-			
-
+			*/
+			while (MessageQueue.Count > 0)
+				switch (MessageQueue.Dequeue())
+				{
+					case MSMessageType.Noop:
+						break;
+					case MSMessageType.ShowCouldntImportDialog:
+						MsgBox("ファイルを追加できません", "既にプレイリストに同名のファイルがあり、これ以上代替の名前をつけることができません。読み込みを中断します。");
+						break;
+					case MSMessageType.ShowImportedDialog:
+						MsgBox("ファイルを追加しました", $"SMF は正常にプレイリストに追加されました。");
+						break;
+					case MSMessageType.UpdateFilelist:
+						var fils = Directory.GetFiles(IOHelper.GetFullPath("Music"));
+						for (int i = 0; i < fils.Length; i++)
+							fils[i] = Path.GetFileName(fils[i]);
+						dataSource.UpdateDatas(fils);
+						FileList.ReloadData();
+						break;
+				}
 		}
 
 		public override void ViewWillAppear(bool animated)

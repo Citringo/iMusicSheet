@@ -176,7 +176,7 @@ namespace App1
 	}
 
 	
-	public class Tone
+	public struct Tone
 	{
 		public float BaseFreq
 		{
@@ -198,7 +198,7 @@ namespace App1
 			get;
 			private set;
 		}
-		public int Tick
+		public double Tick
 		{
 			get;
 			private set;
@@ -214,11 +214,11 @@ namespace App1
 		/// <param name="e"></param>
 		/// <param name="v"></param>
 		/// <param name="c"></param>
-		public Tone(float f, int n, int v, int c)
+		public Tone(float f, int n, int v, int c, double tick)
 		{
 			BaseFreq = f;
 			Velocity = v;
-			Tick = 0;
+			Tick = tick;
 			NoteNum = n;
 			Channel = c;
 			EnvFlag = EnvelopeFlag.Attack;

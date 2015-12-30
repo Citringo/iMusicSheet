@@ -7,6 +7,7 @@ using AudioToolbox;
 
 using Foundation;
 using System.Threading;
+using System.Linq;
 
 namespace App1
 {
@@ -33,6 +34,10 @@ namespace App1
 				for (int j = 1; j < data.Length; j++)
 					data[j] &= 0x7F;
 
+				data = data.Skip(1).ToArray();
+
+				if (Enum.IsDefined(typeof(MidiNode), midiCommand))
+					synth.SendEvent((MidiNode)midiCommand, midiChannel, data);
 				
 			}
 		}

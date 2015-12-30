@@ -21,11 +21,23 @@ namespace App1
 		private const int numPacketsToRead = 1088;
 		private NSError error;
 
-		public Channel[] ch = new Channel[16];
-		public Tone[] tones = new Tone[32];
+		private Channel[] ch = new Channel[16];
+		private Tone?[] tones = new Tone?[32];
 
 		public MSSynth()
 		{
+			for (int i = 0; i < ch.Length; i++)
+				ch[i] = new Channel
+				{
+					Panpot = 64,
+					Volume = 100,
+					Expression = 127,
+					Pitchbend = 0,
+					BendRange = 2,
+					Inst = 0,
+					NoteShift = 0,
+					Tweak = 0
+				};
 			AVAudioSession session = AVAudioSession.SharedInstance();
 			session.SetCategory("AVAudioSessionCategoryPlayback", AVAudioSessionCategoryOptions.DefaultToSpeaker, out error);
 			if (error != null)
@@ -78,7 +90,7 @@ namespace App1
 
 		public void SendEvent(MidiNode command, int channel, byte[] data)
 		{
-			Info("{0}ch.{1} {2}", channel, command, string.Join(", ", data));
+			//Info("{0}ch.{1} {2}", channel, command, string.Join(", ", data));
 			switch (command)
 			{
 				case MidiNode.NoteOff:
@@ -88,7 +100,8 @@ namespace App1
 					{
 						if (tones[i] == null)
 							continue;
-						if (tones[i].NoteNum == data[0] && tones[i].Channel == channel)
+						var t = tones[i].GetValueOrDefault();
+						if (t.NoteNum == data[0] && t.Channel == channel)
 						{
 							tones[i] = null;
 							break;
@@ -96,6 +109,8 @@ namespace App1
 					}
 					break;
 				case MidiNode.NoteOn:
+					if (channel == 9)
+						break;
 					if (data[1] == 0)	//NoteOnのベロシティが0の時はNoteOff同様になる
 						goto case MidiNode.NoteOff;
 					int? candidate = null;
@@ -109,21 +124,24 @@ namespace App1
 					if (candidate == null)
 					{
 						//ここではtonesはすべてnullではないはず
-						int max = 0;
+						double max = 0;
 						// 一番年上を卒業させる
 						for (int i = 0; i < tones.Length; i++)
-							if (max < tones[i].Tick)
+						{
+							var t = tones[i].GetValueOrDefault();
+							if (max < t.Tick)
 							{
 								candidate = i;
-								max = tones[i].Tick;
+								max = t.Tick;
 							}
+						}
 						if (candidate == null)
 							break;	//それでもnullなら諦めよう
 					}
-					tones[candidate.Value] = new Tone(GetFreq(data[0]), data[0], data[1], channel);
+					tones[candidate.Value] = new Tone(GetFreq(data[0]), data[0], data[1], channel, tick);
 					break;
 				case MidiNode.ControlChange:
-					if (!Enum.IsDefined(typeof(ControlChangeType), data[0]))
+					if (!Enum.IsDefined(typeof(ControlChangeType), (int)data[0]))
 						break;
 					var cc = (ControlChangeType)data[0];
 					var value = data[1];
@@ -179,7 +197,7 @@ namespace App1
 					ch[channel].Inst = data[0];
 					break;
 				case MidiNode.PitchBend:
-					ch[channel].Pitchbend = data[1] << 7 + data[0];
+					ch[channel].Pitchbend = (data[1] << 7 + data[0]) - 8192;
 					break;
 				default:
 					break;
@@ -201,16 +219,29 @@ namespace App1
 			double amp = 0.9;
 			double max16bit = short.MaxValue;
 			short* p = (short*)buffer->AudioData;
-			double yl, yr, byl = 0, byr = 0;
+			double yl, yr;
 			for (int i = 0; i < sampleCount; i++)
 			{
-				double x = tick * sd * 440;
-				yl = (((x % 1.0 < 0.5) ? 0.7 : -0.7) + byl) / 2;
-				yr = (((x % 1.0 < 0.5) ? 0.7 : -0.7) + byr) / 2;
+				yl = 0; yr = 0;
+				var cnt = tones.Count((tone) => tone != null);
+				if (cnt > 0)
+					for (int j = 0; j < tones.Length; j++)
+					{
+						if (tones[j] == null)
+							continue;
+							var t = tones[j].GetValueOrDefault();
+							double freq = t.BaseFreq * Math.Pow(2, (ch[t.Channel].Pitchbend / 8192.0) * (ch[t.Channel].BendRange / 12.0)) * Math.Pow(2, (ch[t.Channel].Tweak / 8192f) * (2 / 12f)) * Math.Pow(2, (ch[t.Channel].NoteShift / 12f));
+							double x = tick * sd * freq;
+							double panrt = ch[t.Channel].Panpot / 127.0;
+							double volrt = ch[t.Channel].Volume / 127.0;
+							double exprt = ch[t.Channel].Expression / 127.0;
+							double cntrt = (double)cnt / tones.Length;
+
+							yl += ((x % 1.0 < 0.5) ? 0.7 : -0.7) * (1 - panrt) * volrt * exprt * cntrt;
+							yr += ((x % 1.0 < 0.5) ? 0.7 : -0.7) * panrt * volrt * exprt * cntrt;
+					}
 				p[i * 2 + 0] = (short)(yl * max16bit * amp);
 				p[i * 2 + 1] = (short)(yr * max16bit * amp);
-				byl = yl;
-				byr = yr;
 				tick++;
 			}
 			buffer->AudioDataByteSize = sampleCount * 4;
