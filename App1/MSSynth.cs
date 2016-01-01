@@ -14,19 +14,23 @@ namespace App1
 
 	public unsafe class MSSynth
 	{
+		private const int MaxChannelCount = 16;
+		private const int MaxToneCount = 32;
 
 		OutputAudioQueue queue;
 		private double sampleRate;
 		private const int numBuffers = 3;
-		private const int numPacketsToRead = 1088;
+		private double[] freqexts = new double[MaxChannelCount];
 		private NSError error;
 
-		private Channel[] ch = new Channel[16];
-		private Tone?[] tones = new Tone?[32];
+		private Channel[] ch = new Channel[MaxChannelCount];
+		private Tone?[] tones = new Tone?[MaxToneCount];
+		private MSRenderer[] renderer = new MSRenderer[MaxToneCount];
 
 		public MSSynth()
 		{
 			for (int i = 0; i < ch.Length; i++)
+			{
 				ch[i] = new Channel
 				{
 					Panpot = 64,
@@ -38,6 +42,10 @@ namespace App1
 					NoteShift = 0,
 					Tweak = 0
 				};
+				
+			}
+			for (int i = 0; i < renderer.Length; i++)
+				renderer[i] = new MSRenderer();
 			AVAudioSession session = AVAudioSession.SharedInstance();
 			session.SetCategory("AVAudioSessionCategoryPlayback", AVAudioSessionCategoryOptions.DefaultToSpeaker, out error);
 			if (error != null)
@@ -85,8 +93,22 @@ namespace App1
 			Logger.Info("Set EventHandler");
 			queue.Start();
 			Logger.Info("queue start");
+			SetFreqExtension();
+		}
+
+		void SetFreqExtension()
+		{
+			for (int i = 0; i < MaxChannelCount; i++)
+				SetFreqExtension(i);
+		}
+
+
+		void SetFreqExtension(int channel)
+		{
+			freqexts[channel] = Math.Pow(2, (ch[channel].Pitchbend / 8192.0) * (ch[channel].BendRange / 12.0)) * Math.Pow(2, (ch[channel].Tweak / 8192f) * (2 / 12f)) * Math.Pow(2, (ch[channel].NoteShift / 12f));
 
 		}
+
 
 		public void SendEvent(MidiNode command, int channel, byte[] data)
 		{
@@ -104,7 +126,6 @@ namespace App1
 						if (t.NoteNum == data[0] && t.Channel == channel)
 						{
 							tones[i] = null;
-							break;
 						}
 					}
 					break;
@@ -114,9 +135,9 @@ namespace App1
 					if (data[1] == 0)	//NoteOnのベロシティが0の時はNoteOff同様になる
 						goto case MidiNode.NoteOff;
 					int? candidate = null;
-					// すき間を探す
+					// すき間，またはダブっているToneを探す
 					for (int i = 0; i < tones.Length; i++)
-						if (tones[i] == null)
+						if (tones[i] == null || (tones[i].Value.Channel == channel && tones[i].Value.NoteNum == data[0]))
 						{
 							candidate = i;
 							break;
@@ -129,10 +150,10 @@ namespace App1
 						for (int i = 0; i < tones.Length; i++)
 						{
 							var t = tones[i].GetValueOrDefault();
-							if (max < t.Tick)
+							if (max < tick - t.Tick)
 							{
 								candidate = i;
-								max = t.Tick;
+								max = tick - t.Tick;
 							}
 						}
 						if (candidate == null)
@@ -197,14 +218,20 @@ namespace App1
 					ch[channel].Inst = data[0];
 					break;
 				case MidiNode.PitchBend:
-					ch[channel].Pitchbend = (data[1] << 7 + data[0]) - 8192;
+					ch[channel].Pitchbend = ((data[1] << 7) + data[0]) - 8192;
+					//Info("SetPitchBend: {0}", ch[channel].Pitchbend);
+					SetFreqExtension(channel);
 					break;
 				default:
 					break;
 			}
 		}
 
+
 		double tick = 0;
+
+
+		
 
 		void GenerateTone(AudioQueueBuffer* buffer)
 		{
@@ -220,6 +247,8 @@ namespace App1
 			double max16bit = short.MaxValue;
 			short* p = (short*)buffer->AudioData;
 			double yl, yr;
+			string log = "", blog = "";
+
 			for (int i = 0; i < sampleCount; i++)
 			{
 				yl = 0; yr = 0;
@@ -229,23 +258,35 @@ namespace App1
 					{
 						if (tones[j] == null)
 							continue;
-							var t = tones[j].GetValueOrDefault();
-							double freq = t.BaseFreq * Math.Pow(2, (ch[t.Channel].Pitchbend / 8192.0) * (ch[t.Channel].BendRange / 12.0)) * Math.Pow(2, (ch[t.Channel].Tweak / 8192f) * (2 / 12f)) * Math.Pow(2, (ch[t.Channel].NoteShift / 12f));
-							double x = tick * sd * freq;
-							double panrt = ch[t.Channel].Panpot / 127.0;
-							double volrt = ch[t.Channel].Volume / 127.0;
-							double exprt = ch[t.Channel].Expression / 127.0;
-							double cntrt = (double)cnt / tones.Length;
+						var t = tones[j].GetValueOrDefault();
+						double freq = t.BaseFreq * freqexts[t.Channel];
+						renderer[j].SetCycle(freq, sampleRate);
+						/*if (t.Channel == 1)
+						{
+							blog = log;
+							log = $"♪:{pitchnames[t.NoteNum % 12]}{t.NoteNum / 12 - 1} Freq:{(int)freq} BFreq:{(int)t.BaseFreq} Pitch:{ch[t.Channel].Pitchbend}\n";
+							if (blog != log)
+								LogAddToList(log);
+                        }*/
+						double x = renderer[j].Position;
+						double panrt = ch[t.Channel].Panpot / 127.0;
+						double volrt = ch[t.Channel].Volume / 127.0;
+						double exprt = ch[t.Channel].Expression / 127.0;
+						double velrt = t.Velocity / 127.0;
+						double cntrt = 1d / tones.Length;
 
-							yl += ((x % 1.0 < 0.5) ? 0.7 : -0.7) * (1 - panrt) * volrt * exprt * cntrt;
-							yr += ((x % 1.0 < 0.5) ? 0.7 : -0.7) * panrt * volrt * exprt * cntrt;
+						yl += ((x % 1.0 < 0.5) ? 0.7 : -0.7) * (1 - panrt) * volrt * exprt * cntrt * velrt;
+						yr += ((x % 1.0 < 0.5) ? 0.7 : -0.7) * panrt * volrt * exprt * cntrt * velrt;
 					}
 				p[i * 2 + 0] = (short)(yl * max16bit * amp);
 				p[i * 2 + 1] = (short)(yr * max16bit * amp);
-				tick++;
+				
 			}
 			buffer->AudioDataByteSize = sampleCount * 4;
+			tick++;
 		}
+
+
 
 		public static float GetRelativeFreq(int oct)
 		{
@@ -269,5 +310,49 @@ namespace App1
 			return (float)(441 * Math.Pow(2, (noteno - 69) / 12.0));
 		}
 
+	
 	}
+
+	public class MSRenderer
+	{
+		public MSRenderer()
+		{
+			step = 0;
+			position = 0;
+		}
+
+		public MSRenderer(double cycle)
+			: this()
+		{
+			SetCycle(cycle);
+		}
+
+		private double step;
+		private double position;
+
+		public void SetCycle(double cycle)
+		{
+			if (cycle > 0)
+				step = Division / cycle;
+			else
+				step = 0;
+		}
+
+		const double Division = 1d;
+
+		public void SetCycle(double freq, double samplerate)
+		{
+			SetCycle(samplerate / freq);
+		}
+
+		public double Position
+		{
+			get
+			{
+				return position = (position + step) % Division;
+			}
+		}
+
+	}
+
 }

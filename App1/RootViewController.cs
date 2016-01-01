@@ -79,6 +79,12 @@ namespace App1
                 }
 			});
 			*/
+		}
+
+		public override void ViewWillAppear(bool animated)
+		{
+			base.ViewWillAppear(animated);
+			Logger.Info("ViewWillAppear");
 			while (MessageQueue.Count > 0)
 				switch (MessageQueue.Dequeue())
 				{
@@ -98,12 +104,6 @@ namespace App1
 						FileList.ReloadData();
 						break;
 				}
-		}
-
-		public override void ViewWillAppear(bool animated)
-		{
-			base.ViewWillAppear(animated);
-			Logger.Info("ViewWillAppear");
 		}
 
 		public override void ViewDidAppear(bool animated)

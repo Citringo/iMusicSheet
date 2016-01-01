@@ -35,30 +35,30 @@ namespace App1
 		// This method is called as part of the transiton from background to active state.
 		public override void WillEnterForeground (UIApplication application)
 		{
-			var vc = this.Window.RootViewController.PresentedViewController as RootViewController;
-			if (vc != null)
-			{
-				while (MessageQueue.Count > 0)
-					switch (MessageQueue.Dequeue())
-					{
-						case MSMessageType.Noop:
-							break;
-						case MSMessageType.ShowCouldntImportDialog:
-							MsgBox("ファイルを追加できません", "既にプレイリストに同名のファイルがあり、これ以上代替の名前をつけることができません。読み込みを中断します。");
-							break;
-						case MSMessageType.ShowImportedDialog:
-							MsgBox("ファイルを追加しました", $"SMF は正常にプレイリストに追加されました。");
-							break;
-						case MSMessageType.UpdateFilelist:
-								var fils = Directory.GetFiles(GetFullPath("Music"));
-								for (int i = 0; i < fils.Length; i++)
-									fils[i] = Path.GetFileName(fils[i]);
-								vc.dataSource.UpdateDatas(fils);
-								vc.FileList.ReloadData();
-							break;
-					}
-			}
+			var vc = Window.RootViewController.PresentedViewController as RootViewController;
+
+			Logger.Info("WillEnterForeground : {0}", (vc != null ? vc.ToString() : "Null"));
+			while (MessageQueue.Count > 0)
+				switch (MessageQueue.Dequeue())
+				{
+					case MSMessageType.Noop:
+						break;
+					case MSMessageType.ShowCouldntImportDialog:
+						MsgBox("ファイルを追加できません", "既にプレイリストに同名のファイルがあり、これ以上代替の名前をつけることができません。読み込みを中断します。");
+						break;
+					case MSMessageType.ShowImportedDialog:
+						MsgBox("ファイルを追加しました", $"SMF は正常にプレイリストに追加されました。");
+						break;
+					case MSMessageType.UpdateFilelist:
+						var fils = Directory.GetFiles(IOHelper.GetFullPath("Music"));
+						for (int i = 0; i < fils.Length; i++)
+							fils[i] = Path.GetFileName(fils[i]);
+						vc?.dataSource.UpdateDatas(fils);
+						vc?.FileList.ReloadData();
+						break;
+				}
 		}
+
 		// This method is called when the application is about to terminate. Save data, if needed.
 		public override void WillTerminate (UIApplication application)
 		{

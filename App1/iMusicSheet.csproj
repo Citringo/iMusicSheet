@@ -118,6 +118,10 @@
     <CodesignKey>iPhone Distribution</CodesignKey>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DebugViewController.cs" />
+    <Compile Include="DebugViewController.designer.cs">
+      <DependentUpon>DebugViewController.cs</DependentUpon>
+    </Compile>
     <Compile Include="IOHelper.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
@@ -249,7 +253,6 @@
       <DependentUpon>RootViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="RootViewController.cs" />
-    <InterfaceDefinition Include="MainStoryboard_iPad.storyboard" />
     <InterfaceDefinition Include="MainStoryboard_iPhone.storyboard" />
   </ItemGroup>
   <ItemGroup>
@@ -296,6 +299,8 @@
     <BundleResource Include="Resources\Drums\81.wav" />
     <BundleResource Include="Resources\Hello, music sheet.mid" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="bin\" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>
