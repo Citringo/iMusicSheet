@@ -43,6 +43,7 @@ namespace App1
 			base.ViewDidLoad();
 			Logger.Info("ViewDidLoad");
 			player = new MSPlayer();
+			player.Loop += Player_Loop;
 			var files = Directory.GetFiles(IOHelper.GetFullPath("Music"));
 			for (int i = 0; i < files.Length; i++)
 				files[i] = Path.GetFileName(files[i]);
@@ -79,6 +80,14 @@ namespace App1
                 }
 			});
 			*/
+		}
+
+		private void Player_Loop(object sender, LoopEventArgs e)
+		{
+			StatusLabel.InvokeOnMainThread(() =>
+			{
+				StatusLabel.Text = string.Format("{0:0.###} / {1:0.###}", e.NowTime, e.Length);
+			});
 		}
 
 		public override void ViewWillAppear(bool animated)
@@ -168,6 +177,7 @@ namespace App1
 		}
 
 
+
 		public override async void RowSelected(UITableView tableView, NSIndexPath indexPath)
 		{
 			try
@@ -186,6 +196,8 @@ namespace App1
 				if (e.CancellationToken == cts.Token)
 				{
 					Logger.Info("Player was playing midi. So stopped it.");
+					//cts.Dispose();
+					//cts = null;
 				}
 
 			}

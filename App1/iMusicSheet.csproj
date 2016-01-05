@@ -102,8 +102,11 @@
     <MtouchArch>ARMv7, ARM64</MtouchArch>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <BuildIpa>True</BuildIpa>
-    <CodesignProvision>Automatic:AdHoc</CodesignProvision>
-    <CodesignKey>iPhone Distribution</CodesignKey>
+    <CodesignProvision>2a73c660-c804-4a35-8e37-fa5625657da2</CodesignProvision>
+    <CodesignKey>iPhone Developer: pokemon1129jp@yahoo.co.jp (ZC3RVJ5QAN)</CodesignKey>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodesignResourceRules />
+    <CodesignExtraArgs />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|iPhone' ">
     <DebugType>none</DebugType>
@@ -116,6 +119,10 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <CodesignProvision>Automatic:AppStore</CodesignProvision>
     <CodesignKey>iPhone Distribution</CodesignKey>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Ad-Hoc|iPhoneSimulator'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;__UNIFIED__;__MOBILE__;__IOS__;</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DebugViewController.cs" />

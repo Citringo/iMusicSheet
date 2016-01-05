@@ -13,15 +13,16 @@ namespace App1
 {
 	public class MSPlayer
 	{
-
+		MusicPlayer player;
 		MidiClient virtualMidi;
 		MidiEndpoint virtualEndpoint;
 		private MSSynth synth;
 
 		void MidiMessageReceived(object sender, MidiPacketsEventArgs midiPacketArgs)
 		{
+			
 			var packets = midiPacketArgs.Packets;
-
+			Logger.Info("Midi Packet Length: {0}", packets.Length);
 			for (int i = 0; i < packets.Length; i++)
 			{
 				var packet = packets[i];
@@ -38,13 +39,12 @@ namespace App1
 
 				if (Enum.IsDefined(typeof(MidiNode), midiCommand))
 					synth.SendEvent((MidiNode)midiCommand, midiChannel, data);
-				
 			}
 		}
 
 		public async Task PlayAsync(string fileurl, CancellationToken ct)
 		{
-
+			synth.Reset();
 			virtualMidi = new MidiClient("VirtualClient");
 			virtualMidi.IOError += (object sender, IOErrorEventArgs e) => {
 				Logger.Warning("IO Error, messageId={0}", e.ErrorCode);
@@ -53,6 +53,7 @@ namespace App1
 			virtualMidi.PropertyChanged += (object sender, ObjectPropertyChangedEventArgs e) => {
 				Logger.Info("Property changed: " + e.MidiObject + ", " + e.PropertyName);
 			};
+
 
 			MidiError error;
 			virtualEndpoint = virtualMidi.CreateVirtualDestination("Virtual Destination", out error);
@@ -65,34 +66,41 @@ namespace App1
 
 			sequence.LoadFile(NSUrl.FromFilename(fileurl), MusicSequenceFileTypeID.Midi);
 
-			var player = new MusicPlayer();
+			player = new MusicPlayer();
 
 			sequence.SetMidiEndpoint(virtualEndpoint);
-
 			player.MusicSequence = sequence;
 			player.Preroll();
 			player.Start();
 
 			MusicTrack track;
-			track = sequence.GetTrack(1);
-			var length = track.TrackLength;
+			//track = sequence.GetTrack(1);
+			double length = 0;
+			for (int i = 1; i < sequence.TrackCount; i++)
+			{
+				track = sequence.GetTrack(i);
+				if (length < track.TrackLength)
+					length = track.TrackLength;
+			}
+			//var length = track.TrackLength;
 			while (true)
 			{
 				try
 				{
-					await Task.Delay(3, ct);
+					await Task.Delay(16, ct);
 				}
 				catch (OperationCanceledException)
 				{
 					player.Stop();
 					sequence.Dispose();
 					player.Dispose();
+					
 					Logger.Info("Midi playing is canceled.");
 					throw;
 				}
 				double now = player.Time;
 				OnLoop(new LoopEventArgs(now, length));
-				if (now > length)
+                if (now >= length)
 					break;
 			}
 
@@ -101,6 +109,8 @@ namespace App1
 			player.Dispose();
 			Logger.Info("Midi playing is successfully finished!");
 		}
+
+		
 
 		public MSPlayer()
 		{

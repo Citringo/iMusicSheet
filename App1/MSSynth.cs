@@ -4,9 +4,10 @@ using System.Linq;
 using AudioToolbox;
 using AVFoundation;
 using Foundation;
-using static App1.Utility;
+using static App1.MssfUtility;
 using static App1.Logger;
-
+using static App1.IOHelper;
+using System.IO;
 
 namespace App1
 {
@@ -16,18 +17,21 @@ namespace App1
 	{
 		private const int MaxChannelCount = 16;
 		private const int MaxToneCount = 32;
+		private const int numBuffers = 3;
 
 		OutputAudioQueue queue;
 		private double sampleRate;
-		private const int numBuffers = 3;
-		private double[] freqexts = new double[MaxChannelCount];
 		private NSError error;
 
 		private Channel[] ch = new Channel[MaxChannelCount];
 		private Tone?[] tones = new Tone?[MaxToneCount];
 		private MSRenderer[] renderer = new MSRenderer[MaxToneCount];
+		private Mssf[] mssfs = new Mssf[128];
+		private double[] freqexts = new double[MaxChannelCount];
 
-		public MSSynth()
+		private short[] rpns = new short[4];
+
+		public void Reset()
 		{
 			for (int i = 0; i < ch.Length; i++)
 			{
@@ -42,10 +46,36 @@ namespace App1
 					NoteShift = 0,
 					Tweak = 0
 				};
-				
 			}
+
 			for (int i = 0; i < renderer.Length; i++)
 				renderer[i] = new MSRenderer();
+
+			for (int i = 0; i < tones.Length; i++)
+			{
+				tones[i] = null;
+			}
+
+			SetFreqExtension();
+
+		}
+
+		public MSSynth()
+		{
+
+			Reset();
+			
+
+			//Mssf の取得
+			for (int i = 0; i < 128; i++)
+			{
+				var path = GetFullBundlePath($"mssf/{i}.wav");
+                if (!File.Exists(path))
+                    continue;
+				LoadFileDynamic(path);
+
+			}
+
 			AVAudioSession session = AVAudioSession.SharedInstance();
 			session.SetCategory("AVAudioSessionCategoryPlayback", AVAudioSessionCategoryOptions.DefaultToSpeaker, out error);
 			if (error != null)
@@ -93,7 +123,7 @@ namespace App1
 			Logger.Info("Set EventHandler");
 			queue.Start();
 			Logger.Info("queue start");
-			SetFreqExtension();
+			
 		}
 
 		void SetFreqExtension()
@@ -178,13 +208,28 @@ namespace App1
 							ch[channel].Expression = value;
 							break;
 						case ControlChangeType.DataMSB:
-//							break;
+							rpns[2] = value;
+							switch (rpns[1])
+							{
+								case 0:
+									ch[channel].BendRange = rpns[2];
+									break;
+								case 2:
+									ch[channel].NoteShift = (short)(rpns[2] - 64);
+									break;
+							}
+							break;
 						case ControlChangeType.DataLSB:
-//							break;
+							rpns[3] = value;
+							if (rpns[1] == 1)
+								ch[channel].Tweak = (short)((rpns[2] << 7) + rpns[3] - 8192);
+							break;
 						case ControlChangeType.RPNLSB:
-//							break;
+							rpns[1] = value;
+							break;
 						case ControlChangeType.RPNMSB:
-//							break;
+							rpns[0] = value;
+							break;
 						case ControlChangeType.AllSoundOff:
 //							break;
 						case ControlChangeType.ResetAllController:
@@ -208,7 +253,7 @@ namespace App1
 						case ControlChangeType.Chorus:
 //							break;
 						case ControlChangeType.Delay:
-							Warning("NotImpl: {0}", cc);
+							//Warning("NotImpl: {0}", cc);
 							break;
 						default:
 							break;

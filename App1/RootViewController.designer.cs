@@ -18,11 +18,19 @@ namespace App1
 		[GeneratedCode ("iOS Designer", "1.0")]
 		public UITableView FileList { get; set; }
 
+		[Outlet]
+		[GeneratedCode ("iOS Designer", "1.0")]
+		UILabel StatusLabel { get; set; }
+
 		void ReleaseDesignerOutlets ()
 		{
 			if (FileList != null) {
 				FileList.Dispose ();
 				FileList = null;
+			}
+			if (StatusLabel != null) {
+				StatusLabel.Dispose ();
+				StatusLabel = null;
 			}
 		}
 	}
